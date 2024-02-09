@@ -74,9 +74,11 @@
 
   /* Animación al pasar el mouse */
   .book:hover::after {
-    background: linear-gradient(to right, #fff 0%, #f0f0f0 100%);
-    transition: background 0.3s ease;
-  }
+    background-color: #f5f5f5; /* Color sólido como alternativa */
+    opacity: 0; /* Ajusta la opacidad para dar un efecto sutil */
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    }
+
 
   /* Para dispositivos más pequeños */
   @media (max-width: 600px) {
