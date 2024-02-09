@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planta sobre libros en CSS</title>
+<style>
+  /* Reseteo básico y estilos del cuerpo del documento */
+  body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f4e7d3;
+  }
+
+  /* Estilos de la pila de libros utilizando descendientes */
+  .book-stack .book {
+    width: 150px; /* Ancho de los libros */
+    height: 30px; /* Altura de los libros */
+    margin: 0;
+    background-image: url(/lab5/img/interior.png);
+    border-radius: 20px 0 0 20px;
+    position: relative;
+  }
+
+  /* Selector compuesto para aumentar especificidad */
+  .book-stack .book:first-child.special-book { background-color: #fdfd96; width: 130px;}
+
+  /* Uso del selector ~ para aplicar estilo a libros después del primero */
+  .book-stack .book.special-book ~ .book { border-left: 5px solid #000; }
+
+  /* Colores de los libros y detalles */
+  .book:nth-child(2) { background-color: #ff6961; width: 110px;}
+  .book:nth-child(3) { background-color: #77dd77; width: 130px;}
+  .book:nth-child(4) { background-color: #aec6cf; width: 160px;}
+  .book:last-child { background-color: #cb99c9; width: 140px;}
+
+  /* Generar las páginas de los libros */
+  .book::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    right: 5px;
+    bottom: 4px;
+    background-image: url(../lab5/img/interior.png);
+    background-size: cover;
+    border-radius: 20px 0 0 20px;
+  }
+
+  /* Estilos de la maceta utilizando el selector > para aumentar especificidad */
+  .book-stack > .pot {
+    position: absolute;
+    bottom: 420px; /* Altura de la pila de libros */
+    height: 40px;
+    width: 50px;
+    background-color: #c4a484;
+    border-radius: 10px;
+    border: 5px solid #8b6b61;
+    border-bottom: none;
+  }
+
+  /* Estilos de la planta utilizando el selector + para relacionar con la maceta */
+  .pot + .plant {
+    position: absolute;
+    bottom: 460px;
+    height: 70px;
+    width: 60px;
+    background-color: #76b947;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+
+  /* Animación al pasar el mouse */
+  .book:hover::after {
+    background: linear-gradient(to right, #fff 0%, #f0f0f0 100%);
+    transition: background 0.3s ease;
+  }
+
+  /* Para dispositivos más pequeños */
+  @media (max-width: 600px) {
+    .book { width: 80px; }
+    .pot { bottom: 90px; }
+    .plant { bottom: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="book-stack">
+  <div class="book special-book"></div> <!-- Clase compuesta y selector descendiente -->
+  <div class="book"></div>
+  <div class="book"></div>
+    <div class="book"></div>
+    <div class="book"></div>
+    <div class="pot"></div>
+    <div class="plant"></div>
+  </div>
+  
+  </body>
+  </html>
+  
