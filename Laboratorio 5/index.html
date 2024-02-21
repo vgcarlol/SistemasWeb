@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<script type="application/javascript">
+document.addEventListener('DOMContentLoaded', initChat);
+
+function initChat() {
+    const chatContainer = createChatContainer();
+    const flexContainer = createFlexContainer();
+    const errorContainer = createErrorContainer();
+    const themeToggle = createThemeToggle();
+
+    document.body.appendChild(chatContainer);
+    document.body.appendChild(flexContainer);
+    document.body.appendChild(errorContainer);
+    document.body.appendChild(themeToggle.wrapper);
+
+    setupEventListeners();
+    recibirMensaje();
+    setInterval(recibirMensaje, 5000);
+}
+
+function createChatContainer() {
+    const container = document.createElement('div');
+    container.style.cssText = `
+        max-width: 90%;
+        height: 75vh;
+        margin: 20px auto;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        border-radius: 8px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        font-family: 'Arial', sans-serif;
+    `;
+    container.id = 'chatContainer';
+    return container;
+}
+
+function createFlexContainer() {
+    const footer = document.createElement('div');
+    footer.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        position: fixed;
+        bottom: 0;
+        width: 90%;
+        margin: 0 5%;
+        padding: 10px 0;
+        background-color: #f4f4f4;
+        box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+    `;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'messageInput';
+    input.style.cssText = `
+        flex-grow: 1;
+        margin-right: 10px;
+        padding: 10px;
+        border-radius: 20px;
+        border: 1px solid #ccc;
+    `;
+    const sendButton = document.createElement('button');
+    sendButton.textContent = 'Enviar';
+    sendButton.id = 'sendButton';
+    sendButton.style.cssText = `
+        padding: 10px 20px;
+        border-radius: 20px;
+        border: none;
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+    `;
+
+    footer.appendChild(input);
+    footer.appendChild(sendButton);
+
+    return footer;
+}
+
+function createErrorContainer() {
+    const errorContainer = document.createElement('div');
+    errorContainer.id = 'errorContainer';
+    errorContainer.style.cssText = `
+        color: red;
+        position: fixed;
+        top: 5px;
+        width: 100%;
+        text-align: center;
+        display: none;
+    `;
+    return errorContainer;
+}
+
+function createThemeToggle() {
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        display: none;
+    `;
+    const toggle = document.createElement('input');
+    toggle.type = 'checkbox';
+    toggle.id = 'theme-toggle';
+    const label = document.createElement('label');
+    label.htmlFor = 'theme-toggle';
+    label.textContent = 'Modo oscuro';
+
+    wrapper.appendChild(toggle);
+    wrapper.appendChild(label);
+
+    return { wrapper, toggle };
+}
+
+function setupEventListeners() {
+    const sendButton = document.getElementById('sendButton');
+    const input = document.getElementById('messageInput');
+    const toggle = document.getElementById('theme-toggle');
+
+    sendButton.addEventListener('click', () => {
+        const messageText = input.value;
+        if (messageText.trim() === '') {
+            showError('No se puede enviar un mensaje vacío');
+            return;
+        }
+        const username = 'Carlos';
+        enviarMensaje(username, messageText);
+        input.value = ''; 
+    });
+
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && input.value.trim() !== '') {
+            e.preventDefault();
+            sendButton.click();
+        }
+    });
+
+    toggle.addEventListener('change', () => {
+        document.body.classList.toggle('dark-theme');
+        const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+        applyTheme(currentTheme);
+    });
+}
+
+
+function sendMessage(message) {
+    if (message.trim() === '') {
+        showError('No se puede enviar un mensaje vacío');
+        return;
+    }
+    console.log("Mensaje enviado:", message);
+}
+
+function showError(message) {
+    const errorContainer = document.getElementById('errorContainer');
+    errorContainer.textContent = message;
+    errorContainer.style.display = 'block';
+    setTimeout(() => {
+        errorContainer.style.display = 'none';
+    }, 3000);
+}
+
+
+
+
+    document.addEventListener('DOMContentLoaded', initChat);
+
+    let lastMessageId = 0; 
+
+    async function recibirMensaje() {
+        try {
+            const response = await fetch('https://chat.arpanetos.lol/messages');
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            const messages = await response.json();
+            const chatContainer = document.getElementById('chatContainer');
+            
+            
+
+            let isAtBottom = chatContainer.scrollTop + chatContainer.clientHeight === chatContainer.scrollHeight;
+
+            messages.forEach((msg) => {
+            
+                if (msg.id > lastMessageId) {
+                    mostrarMensajeEnPantalla(msg);
+                    lastMessageId = msg.id; 
+                }
+            });
+
+            
+            if (isAtBottom) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+            mostrarError('Error fetching messages: ' + error.message);
+        }
+    }
+    recibirMensaje()
+
+    async function enviarMensaje(username, mensaje) {
+        try {
+            const response = await fetch('https://chat.arpanetos.lol/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, message: mensaje }) 
+            });
+
+            if (!response.ok) {
+                console.log('Response not OK:', response);
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            
+            const messageData = await response.json();
+            console.log('Mensaje enviado y recibido del servidor:', messageData);
+            
+
+            if (messageData && messageData.id) {
+                mostrarMensajeEnPantalla({
+                    username: username, 
+                    message: mensaje
+                });
+            }
+        } catch (error) {
+            console.error('Error al enviar el mensaje:', error);
+            mostrarError('Error al enviar el mensaje: ' + error.message);
+        }
+    }
+
+    function mostrarMensajeEnPantalla({ username, message }) {
+        const chatContainer = document.getElementById('chatContainer');
+        const messageDiv = document.createElement('div');
+
+        
+        
+        messageDiv.style.padding = '10px 10px';
+        messageDiv.style.borderRadius = '15px';
+        messageDiv.style.margin = '15px';
+        messageDiv.style.display = 'flex';
+        messageDiv.style.flexDirection = 'column';
+        messageDiv.style.maxWidth = '15%';
+    
+        
+        if (username === 'Carlos') {
+            messageDiv.className = 'message-you';
+            messageDiv.style.backgroundColor = '#5EF3FF'; 
+            messageDiv.style.color = 'white'; 
+            messageDiv.style.alignSelf = 'flex-end';
+            messageDiv.style.marginLeft = 'auto'; 
+        } 
+        
+        else {
+            messageDiv.className = 'message-other';
+            messageDiv.style.backgroundColor = '#f0f0f0'; 
+            messageDiv.style.color = 'black'; 
+            messageDiv.style.alignSelf = 'flex-start'; 
+        }
+        
+        const textContent = document.createElement('span');
+        textContent.textContent = message;
+        messageDiv.appendChild(textContent);
+
+
+
+        messageDiv.textContent = `${username}: `; 
+        
+        
+        const urlRegex = /(https?:\/\/\S*\.(jpg|jpeg|png|gif))/g;
+        let displayText = message; 
+
+        
+        const urls = message.match(urlRegex);
+        if (urls && urls.length > 0) {
+            
+            displayText = displayText.replace(urlRegex, '');
+            
+    
+            urls.forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.maxWidth = '100px';
+                img.onload = () => {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                };
+                messageDiv.appendChild(img); 
+            });
+        }
+        
+    
+        if (displayText.trim()) {
+            messageDiv.appendChild(document.createTextNode(displayText));
+        }
+        
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function applyTheme(theme) {
+        const body = document.body;
+        const chatContainer = document.getElementById('chatContainer');
+        const input = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const isDark = theme === 'dark';
+
+    
+        body.style.backgroundColor = isDark ? '#121212' : '#FFF';
+        body.style.color = isDark ? '#E0E0E0' : '#333';
+
+    
+        chatContainer.style.backgroundColor = isDark ? '#1E1E1E' : '#FFF';
+        chatContainer.style.color = isDark ? '#E0E0E0' : '#333';
+
+    
+        input.style.backgroundColor = isDark ? '#333' : '#FFF';
+        input.style.color = isDark ? '#E0E0E0' : '#333';
+        input.style.borderColor = isDark ? '#666' : '#CCC';
+
+        
+        sendButton.style.backgroundColor = isDark ? '#5EF3FF' : '#F0F0F0';
+        sendButton.style.color = isDark ? '#E0E0E0' : '#333';
+        sendButton.style.borderColor = isDark ? '#5EF3FF' : '#CCC';
+
+        
+        localStorage.setItem('theme', theme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = localStorage.getItem('theme');
+        applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    }
+
+</script>
+</body>
+</html>
