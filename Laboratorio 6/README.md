@@ -1,7 +1,5 @@
 ## Enlace en el servidor: https://arpanetos.lol/lab5/221164/
 
-
-## API Documentation
 ## API Documentation
 
 ```javascript
