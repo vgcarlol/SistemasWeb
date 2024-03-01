@@ -1,4 +1,4 @@
-## Enlace en el servidor: https://arpanetos.lol/lab5/221164/
+## Enlace en el servidor: https://arpanetos.lol/lab6/221164/
 
 ## API Documentation
 
