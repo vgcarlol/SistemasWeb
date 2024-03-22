@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Posts</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/prop-types/prop-types.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .post { border: 1px solid #ddd; margin: 20px 0; padding: 20px; border-radius: 5px; }
+        .loading { text-align: center; padding: 50px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useEffect, Suspense } = React;
+      const { PropTypes } = window;
+
+      const fetchPosts = async () => {
+        const response = await fetch('http://localhost:3000/posts');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      };
+
+      const Post = ({ title, content }) => (
+        <div className="post">
+          <h2>{title}</h2>
+          <p>{content}</p>
+        </div>
+      );
+
+      Post.propTypes = {
+        title: PropTypes.string.isRequired,
+        content: PropTypes.string.isRequired
+      };
+
+      const Posts = ({ posts }) => (
+        posts.map(post => <Post key={post.id} {...post} />)
+      );
+
+      Posts.propTypes = {
+        posts: PropTypes.array.isRequired
+      };
+
+      const App = () => {
+        const [posts, setPosts] = useState(null);
+        const [loading, setLoading] = useState(true);
+        const [error, setError] = useState(null);
+
+        useEffect(() => {
+          (async () => {
+            try {
+              const data = await fetchPosts();
+              setPosts(data);
+            } catch (error) {
+              setError(error.message);
+            } finally {
+              setLoading(false);
+            }
+          })();
+        }, []);
+
+        if (loading) return <div className="loading">Loading...</div>;
+        if (error) return <div>Error: {error}</div>;
+        if (!posts || posts.length === 0) return <div>No posts to display</div>;
+
+        return <Suspense fallback={<div>Loading...</div>}><Posts posts={posts} /></Suspense>;
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+</body>
+</html>

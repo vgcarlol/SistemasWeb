@@ -1,21 +1,83 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Viaje Misterioso - Continuar Camino</title>
-</head>
-<body>
-    <header>
-        <h1>Continúas tu Camino Inmediatamente</h1>
-    </header>
-    <article>
-        <p>
-            Sin perder tiempo, continúas tu camino y encuentras un sendero que lleva a una cascada oculta. Detrás de la cascada, descubres una entrada secreta a un mundo subterráneo desconocido.
-        </p>
-        <p><strong>Fin: Descubres un Mundo Subterráneo Secreto.</strong></p>
-    </article>
-    <footer>
-        <p>© 2024 Viaje Misterioso Historia Interactiva</p>
-    </footer>
-</body>
-</html>
+-- Creación de la base de datos lab04 (esto se ejecuta en el cliente de SQL directamente)
+CREATE DATABASE lab04;
+
+-- Uso de la base de datos creada
+USE lab04;
+
+-- Creación de la tabla estudiante
+CREATE TABLE estudiante (dpi VARCHAR(30) PRIMARY KEY, fechaNacimiento DATE, nombres VARCHAR(50), apellidos VARCHAR(50));
+
+-- Creación de la tabla curso
+CREATE TABLE curso (codigo VARCHAR(30) PRIMARY KEY, nombre VARCHAR(50));
+
+-- Inserción de datos en la tabla estudiante
+INSERT INTO estudiante (dpi, fechaNacimiento, nombres, apellidos) VALUES ('123456789123', '2003-08-28', 'Carlos', 'Valladares'), ('1223456789122', '2003-10-20', 'Nelson', 'García');
+
+-- Inserción de datos en la tabla curso
+INSERT INTO curso (codigo, nombre) VALUES ('CC3088', 'Bases de Datos 1');
+
+
+
+#1.2
+
+CREATE TABLE asignacion (dpi VARCHAR(30), codigo VARCHAR(30), fechaAsignacion DATE, semestre VARCHAR(20), ano INT, PRIMARY KEY (dpi, codigo, semestre, ano), FOREIGN KEY (dpi) REFERENCES estudiante(dpi), FOREIGN KEY (codigo) REFERENCES curso(codigo));
+
+
+##1.3 
+-- Asignación válida para Carlos y Mirna al curso CC3088
+INSERT INTO asignacion (dpi, codigo, fechaAsignacion, semestre, ano) VALUES ('123456789123', 'CC3088', CURRENT_DATE, '2024-1', 2024), ('1223456789122', 'CC3088', CURRENT_DATE, '2024-1', 2024);
+
+-- Intento de asignación con estudiante inexistente (este comando debería fallar)
+INSERT INTO asignacion (dpi, codigo, fechaAsignacion, semestre, ano) VALUES
+('2413949960108', 'CC3088', CURRENT_DATE, '2024-1', 2024);
+
+-- Intento de asignación de Carlos a un curso inexistente (este comando también debería fallar)
+INSERT INTO asignacion (dpi, codigo, fechaAsignacion, semestre, ano) VALUES
+('123456789123', 'FF2017-435', CURRENT_DATE, '2024-1', 2024);
+
+INSERT INTO asignacion (dpi, codigo, fechaAsignacion, semestre, ano) VALUES ('2413 94996 0108', 'CC3088', CURRENT_DATE, 'Semestre Actual', 2024);
+
+
+INSERT INTO asignacion (dpi, codigo, fechaAsignacion, semestre, ano) VALUES ('1223456789122', 'FF2017-435', CURRENT_DATE, 'Semestre Actual', 2024);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##1.4 
+-- Primero, se debe eliminar el constraint existente y luego recrearlo con la opción CASCADE
+ALTER TABLE asignacion DROP CONSTRAINT asignacion_dpi_fkey;
+ALTER TABLE asignacion ADD CONSTRAINT asignacion_dpi_fkey FOREIGN KEY (dpi) REFERENCES estudiante(dpi) ON DELETE CASCADE;
+DELETE FROM estudiante WHERE dpi = '123456789123';
+
+
+-- Paso 1: Asumiendo que ya has insertado un estudiante y asignaciones, procedemos al Paso 2.
+
+-- Paso 2: Seleccionar asignaciones del estudiante antes de la eliminación
+SELECT * FROM asignacion WHERE dpi = '123456789123';
+
+-- Paso 3: Eliminar el estudiante
+DELETE FROM estudiante WHERE dpi = '123456789123';
+
+-- Paso 4: Intentar seleccionar asignaciones del mismo estudiante después de su eliminación
+SELECT * FROM asignacion WHERE dpi = '123456789123';
+
+
+##1.5 
+-- Agregar la columna pasaporte a la tabla estudiante
+ALTER TABLE estudiante ADD COLUMN pasaporte VARCHAR(50) UNIQUE;
+-- Actualizar el número de pasaporte para un estudiante
+UPDATE estudiante SET pasaporte = 'RT7843924' WHERE dpi = '1223456789122';
+INSERT INTO estudiante (dpi, fechaNacimiento, nombres, apellidos) VALUES ('123456789123', '2003-08-28', 'Carlos', 'Valladares');
+-- Intentar actualizar otro estudiante con el mismo número de pasaporte (esto debe fallar)
+UPDATE estudiante SET pasaporte = 'RT7843924' WHERE dpi = '123456789123';
